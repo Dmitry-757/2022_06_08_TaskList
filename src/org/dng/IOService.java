@@ -3,32 +3,49 @@ package org.dng;
 import java.io.*;
 import java.util.*;
 
-//Main idea is: to convert object to byte array, after that write byte array to BufferedOutputStream
-// and then write it to FileOutputStream
-//put the three last symbols at the end of each byte array - "&&&" - it means "end of object"
+//Main idea is: to convert object by ObjectOutputStream to byte array,
+// after that write byte array to FileOutputStream
+//put the some special symbols at after byte array with object - for example "&&&" - it means "end of object"
 
 public class IOService {
+//    public static void writeToFile(Task task) {
+//        //Main idea is: to convert object to byte array, after that write byte array to BufferedOutputStream
+//        // and then write it to FileOutputStream
+//        //put the three last symbols at the end of each byte array - "&&&" - it means "end of object"
+//        //task->oos->boas->toByteArray()->bos->fos
+//        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//             ObjectOutputStream oos = new ObjectOutputStream(baos);
+//
+//             FileOutputStream fos = new FileOutputStream(Main.getFileName(), true);
+//             BufferedOutputStream bos = new BufferedOutputStream(fos);
+//        ) {
+//            oos.writeObject(task);//task -> objOutputStream -> ByteArrayOutputStream(baos)
+//
+//            bos.write(baos.toByteArray()); //ByteArrayOutputStrem(baos) -> BufferedOutputStream -> FileOutPutStream
+//
+//            bos.write("&&&".getBytes());
+////            System.out.println("end of object = "+"&&&".getBytes());
+//            bos.flush();//clear buffer
+//
+//        } catch (IOException ioe) {
+//            ioe.printStackTrace();
+//        }
+//    }
+
     public static void writeToFile(Task task) {
-        //task->oos->boas->toByteArray()->bos->fos
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-             ObjectOutputStream oos = new ObjectOutputStream(baos);
-
-             BufferedOutputStream bos = new BufferedOutputStream(
-                     new FileOutputStream(Main.getFileName(), true)
-             );
+        //task->oos->toByteArray()->fos
+        try (FileOutputStream fos = new FileOutputStream(Main.getFileName(), true);
+             ObjectOutputStream oos = new ObjectOutputStream(fos);
         ) {
-            oos.writeObject(task);//task -> objOutputStream -> ByteArrayOutputStream(baos)
-            bos.write(baos.toByteArray()); //ByteArrayOutputStrem(baos) -> BufferedOutputStream -> FileOutPutStream
+            oos.writeObject(task);//task -> objOutputStream -> FileOutputStream
 
-            bos.write("&&&".getBytes());
-//            System.out.println("end of object = "+"&&&".getBytes());
-            bos.flush();//clear buffer
+            fos.write("&&&".getBytes());
+            fos.flush();//clear buffer
 
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
     }
-
 
     public static List<Task> readFromFile() {
         List<Task> taskList = new LinkedList<>();
