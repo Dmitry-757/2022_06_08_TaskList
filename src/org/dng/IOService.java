@@ -92,6 +92,105 @@ public class IOService {
         return taskList;
     }
 
+
+    public static Task readFromFile(String header) {
+        Task task = null;
+        try (
+                BufferedInputStream bis = new BufferedInputStream(new FileInputStream(Main.getFileName()));
+        ) {
+            //queue consist symbols "end of object"
+            Queue<Integer> myQEndOfObj = new LinkedList<>();
+            myQEndOfObj.add(38);//(char)38 = "&"
+            myQEndOfObj.add(38);
+            myQEndOfObj.add(38);
+
+            Queue<Integer> myQ = new LinkedList<>();//queue for last 3 symbols
+            Deque<Integer> myQObj = new LinkedList<>();
+            int i = 0;
+            while ((i = bis.read()) != -1) {
+                //System.out.print((char)i);
+                myQ.add(i);
+                if (myQ.size() > 3) { //we need for only three last symbols
+                    myQ.poll();
+                }
+                myQObj.add(i);
+
+                if (myQ.equals(myQEndOfObj)) {
+                    //System.out.println("\nfind end of obj!!!");
+                    //we find end of object and now need to remove 3 symbols of "end of obj"
+                    // from queue that consists object"
+                    myQObj.pollLast();
+                    myQObj.pollLast();
+                    myQObj.pollLast();
+
+                    //тут надо перевести myQObj в объект и зачистить myQObj
+                    Task tsk = byteToObj(myQObj);
+                    if (tsk != null)
+                        if (tsk.getHeader().equals(header))
+                            return tsk;
+                    myQObj.clear();
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("IOException by bis.read()" + e.getMessage());
+        }
+        return task;
+    }
+
+
+    public static int[] readFromFile(Task item) {
+
+        int[] result = new int[2];//result[0] - start array, result[1] - length of  array
+        try (
+                BufferedInputStream bis = new BufferedInputStream(new FileInputStream(Main.getFileName()));
+        ) {
+            //queue consist symbols "end of object"
+            Queue<Integer> myQEndOfObj = new LinkedList<>();
+            myQEndOfObj.add(38);//(char)38 = "&"
+            myQEndOfObj.add(38);
+            myQEndOfObj.add(38);
+
+            Queue<Integer> myQ = new LinkedList<>();//queue for last 3 symbols
+            Deque<Integer> myQObj = new LinkedList<>();
+            int i = 0;
+            int currentPos = 0;
+            while ((i = bis.read()) != -1) {
+                currentPos ++;
+                //System.out.print((char)i);
+                myQ.add(i);
+                if (myQ.size() > 3) { //we need for only three last symbols
+                    myQ.poll();
+                }
+                myQObj.add(i);
+                if (myQ.equals(myQEndOfObj)) {
+                    //System.out.println("\nfind end of obj!!!");
+
+                    //we find end of object and now need to remove 3 symbols of "end of obj"
+                    // from queue that consists object"
+                    myQObj.pollLast();
+                    myQObj.pollLast();
+                    myQObj.pollLast();
+
+                    //тут надо перевести myQObj в объект и зачистить myQObj
+                    Task tsk = byteToObj(myQObj);
+                    if (tsk != null)
+                        if (tsk.equals(item)) {
+                            result[1] = myQObj.size();
+                            result[0] = currentPos - result[1];
+
+                            return result;
+                        }
+                    myQObj.clear();
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("IOException by bis.read()" + e.getMessage());
+        }
+        return result;
+    }
+
+
+
     public static Task byteToObj(Deque<Integer> myQObj) {
         byte[] bytes = new byte[myQObj.size()];
         int j = 0;
@@ -116,4 +215,31 @@ public class IOService {
         return task;
     }
 
+    public static void deleteTaskFromFile(Task task) {
+        int[] buf = readFromFile(task);
+        int start = buf[0];
+        int length = buf[1];
+        try(
+                //BufferedInputStream bis = new BufferedInputStream(new FileInputStream(Main.getFileName()));
+                FileInputStream fis = new FileInputStream(Main.getFileName());
+                BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(Main.getFileName(), true));
+                ) {
+            int i, currentPos = 0;
+            while ((i = fis.read()) != -1) {
+                currentPos ++;
+                bos.write(i);
+
+                //skip object which must be deleted
+                if (currentPos==start)
+                    fis.skip(length);
+
+            }
+
+        } catch (FileNotFoundException e) {
+            System.out.println("FileNotFoundException "+e.getMessage());
+        } catch (IOException e) {
+            System.out.println("IOException "+e.getMessage());
+        }
+
+    }
 }

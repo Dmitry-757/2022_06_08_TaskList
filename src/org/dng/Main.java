@@ -30,17 +30,34 @@ public class Main {
             }
         }
 
-        Task task1 = new Task("task1 header", "task1 descryption", PriorityLevel.MEDIUM,
+        Task task1 = new Task("task1 header", "task1 description", PriorityLevel.MEDIUM,
                 LocalDate.now(), LocalDate.of(2022,06,12), "Pupkin");
         System.out.println(task1);
-        Task task2 = new Task("task2 header", "task2 descryption", PriorityLevel.MEDIUM,
+        Task task2 = new Task("task2 header", "task2 description", PriorityLevel.MEDIUM,
                 LocalDate.now(), LocalDate.of(2022,06,15), "Petrov");
         System.out.println(task2);
+        Task task3 = new Task("task3 header", "task3 description", PriorityLevel.MEDIUM,
+                LocalDate.now(), LocalDate.of(2022,06,20), "Sidorov");
+        System.out.println(task3);
 
         System.out.println("**********************************");
         System.out.println("try read Task objects from file:");
         IOService.readFromFile()
                 .forEach(System.out::println);
+//        System.out.println("**********************************");
+//        System.out.println("Try to find task with header `task2 header`");
+//        System.out.println(IOService.readFromFile("task2 header"));
+//
+//        System.out.println("Try to find task with header `not exist task header`");
+//        System.out.println(IOService.readFromFile("not exist task header"));
+
+        System.out.println("*******************************************************");
+        System.out.println("try to delete task2");
+        IOService.deleteTaskFromFile(task2);
+        IOService.readFromFile()
+                .forEach(System.out::println);
+
+
     }
 
 
