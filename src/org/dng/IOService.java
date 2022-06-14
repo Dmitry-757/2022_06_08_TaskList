@@ -1,7 +1,12 @@
 package org.dng;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
+
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 //Main idea is: to convert object by ObjectOutputStream to byte array,
 // after that write byte array to FileOutputStream
@@ -35,7 +40,7 @@ public class IOService {
     public static void writeToFile(Task task) {
         //task->oos->toByteArray()->fos
         try (FileOutputStream fos = new FileOutputStream(Main.getFileName(), true);
-             ObjectOutputStream oos = new ObjectOutputStream(fos);
+             ObjectOutputStream oos = new ObjectOutputStream(fos)
         ) {
             oos.writeObject(task);//task -> objOutputStream -> FileOutputStream
 
@@ -51,7 +56,7 @@ public class IOService {
         List<Task> taskList = new LinkedList<>();
 
         try (
-                BufferedInputStream bis = new BufferedInputStream(new FileInputStream(Main.getFileName()));
+                BufferedInputStream bis = new BufferedInputStream(new FileInputStream(Main.getFileName()))
         ) {
             //queue consist symbols "end of object"
             Queue<Integer> myQEndOfObj = new LinkedList<>();
@@ -61,7 +66,7 @@ public class IOService {
 
             Queue<Integer> myQ = new LinkedList<>();//queue for last 3 symbols
             Deque<Integer> myQObj = new LinkedList<>();
-            int i = 0;
+            int i;
             while ((i = bis.read()) != -1) {
                 //System.out.print((char)i);
                 myQ.add(i);
@@ -96,7 +101,7 @@ public class IOService {
     public static Task readFromFile(String header) {
         Task task = null;
         try (
-                BufferedInputStream bis = new BufferedInputStream(new FileInputStream(Main.getFileName()));
+                BufferedInputStream bis = new BufferedInputStream(new FileInputStream(Main.getFileName()))
         ) {
             //queue consist symbols "end of object"
             Queue<Integer> myQEndOfObj = new LinkedList<>();
@@ -106,7 +111,7 @@ public class IOService {
 
             Queue<Integer> myQ = new LinkedList<>();//queue for last 3 symbols
             Deque<Integer> myQObj = new LinkedList<>();
-            int i = 0;
+            int i;
             while ((i = bis.read()) != -1) {
                 //System.out.print((char)i);
                 myQ.add(i);
@@ -142,7 +147,7 @@ public class IOService {
 
         int[] result = new int[2];//result[0] - start array, result[1] - length of  array
         try (
-                BufferedInputStream bis = new BufferedInputStream(new FileInputStream(Main.getFileName()));
+                BufferedInputStream bis = new BufferedInputStream(new FileInputStream(Main.getFileName()))
         ) {
             //queue consist symbols "end of object"
             Queue<Integer> myQEndOfObj = new LinkedList<>();
@@ -152,10 +157,10 @@ public class IOService {
 
             Queue<Integer> myQ = new LinkedList<>();//queue for last 3 symbols
             Deque<Integer> myQObj = new LinkedList<>();
-            int i = 0;
+            int i;
             int currentPos = 0;
             while ((i = bis.read()) != -1) {
-                currentPos ++;
+                currentPos++;
                 //System.out.print((char)i);
                 myQ.add(i);
                 if (myQ.size() > 3) { //we need for only three last symbols
@@ -175,8 +180,8 @@ public class IOService {
                     Task tsk = byteToObj(myQObj);
                     if (tsk != null)
                         if (tsk.equals(item)) {
-                            result[1] = myQObj.size();
-                            result[0] = currentPos - result[1];
+                            result[1] = myQObj.size() + 3;//записаны байты самого объекта + 3 байта символа "конца объекта"
+                            result[0] = currentPos - result[1] + 1;
 
                             return result;
                         }
@@ -188,7 +193,6 @@ public class IOService {
         }
         return result;
     }
-
 
 
     public static Task byteToObj(Deque<Integer> myQObj) {
@@ -216,29 +220,42 @@ public class IOService {
     }
 
     public static void deleteTaskFromFile(Task task) {
+        if (task ==null)
+            return;
         int[] buf = readFromFile(task);
         int start = buf[0];
         int length = buf[1];
-        try(
+        try (
                 //BufferedInputStream bis = new BufferedInputStream(new FileInputStream(Main.getFileName()));
                 FileInputStream fis = new FileInputStream(Main.getFileName());
-                BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(Main.getFileName(), true));
-                ) {
-            int i, currentPos = 0;
+                BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream("temp.dat", false))
+        ) {
+            int i, currentPos = 1;
             while ((i = fis.read()) != -1) {
-                currentPos ++;
                 bos.write(i);
 
-                //skip object which must be deleted
-                if (currentPos==start)
+                //skip read bytes of object which must be deleted
+                if (currentPos == start)
                     fis.skip(length);
 
+                currentPos++;
             }
+            //if (Path.of())
+//            Path source = Path.of("temp.dat");
+//            Path target = Path.of(Main.getFileName());
+//            Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
 
         } catch (FileNotFoundException e) {
-            System.out.println("FileNotFoundException "+e.getMessage());
+            System.out.println("FileNotFoundException " + e.getMessage());
         } catch (IOException e) {
-            System.out.println("IOException "+e.getMessage());
+            System.out.println("IOException " + e.getMessage());
+        }
+        Path source = Path.of("temp.dat");
+        Path target = Path.of(Main.getFileName());
+        try {
+            Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            System.out.println("IOException during coping " + e.getMessage());
         }
 
     }
