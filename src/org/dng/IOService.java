@@ -13,29 +13,6 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 //put the some special symbols at after byte array with object - for example "&&&" - it means "end of object"
 
 public class IOService {
-//    public static void writeToFile(Task task) {
-//        //Main idea is: to convert object to byte array, after that write byte array to BufferedOutputStream
-//        // and then write it to FileOutputStream
-//        //put the three last symbols at the end of each byte array - "&&&" - it means "end of object"
-//        //task->oos->boas->toByteArray()->bos->fos
-//        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//             ObjectOutputStream oos = new ObjectOutputStream(baos);
-//
-//             FileOutputStream fos = new FileOutputStream(Main.getFileName(), true);
-//             BufferedOutputStream bos = new BufferedOutputStream(fos);
-//        ) {
-//            oos.writeObject(task);//task -> objOutputStream -> ByteArrayOutputStream(baos)
-//
-//            bos.write(baos.toByteArray()); //ByteArrayOutputStrem(baos) -> BufferedOutputStream -> FileOutPutStream
-//
-//            bos.write("&&&".getBytes());
-////            System.out.println("end of object = "+"&&&".getBytes());
-//            bos.flush();//clear buffer
-//
-//        } catch (IOException ioe) {
-//            ioe.printStackTrace();
-//        }
-//    }
 
     public static void writeToFile(Task task) {
         //task->oos->toByteArray()->fos
@@ -58,7 +35,7 @@ public class IOService {
         try (
                 BufferedInputStream bis = new BufferedInputStream(new FileInputStream(Main.getFileName()))
         ) {
-            //queue consist symbols "end of object"
+            //queue contains symbols "end of object"
             Queue<Integer> myQEndOfObj = new LinkedList<>();
             myQEndOfObj.add(38);//(char)38 = "&"
             myQEndOfObj.add(38);
@@ -103,7 +80,7 @@ public class IOService {
         try (
                 BufferedInputStream bis = new BufferedInputStream(new FileInputStream(Main.getFileName()))
         ) {
-            //queue consist symbols "end of object"
+            //queue contains symbols "end of object"
             Queue<Integer> myQEndOfObj = new LinkedList<>();
             myQEndOfObj.add(38);//(char)38 = "&"
             myQEndOfObj.add(38);
@@ -149,7 +126,7 @@ public class IOService {
         try (
                 BufferedInputStream bis = new BufferedInputStream(new FileInputStream(Main.getFileName()))
         ) {
-            //queue consist symbols "end of object"
+            //queue contains symbols "end of object"
             Queue<Integer> myQEndOfObj = new LinkedList<>();
             myQEndOfObj.add(38);//(char)38 = "&"
             myQEndOfObj.add(38);
@@ -208,7 +185,6 @@ public class IOService {
 //                // add filter before readObject
 //                ois.setObjectInputFilter(filter);
             task = (Task) ois.readObject();
-            //System.out.println(task.toString());
         } catch (ClassNotFoundException e) {
             System.out.println("ClassNotFoundException by readObject " + e.getMessage());
             e.printStackTrace();
@@ -240,10 +216,6 @@ public class IOService {
 
                 currentPos++;
             }
-            //if (Path.of())
-//            Path source = Path.of("temp.dat");
-//            Path target = Path.of(Main.getFileName());
-//            Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
 
         } catch (FileNotFoundException e) {
             System.out.println("FileNotFoundException " + e.getMessage());
