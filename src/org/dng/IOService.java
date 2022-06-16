@@ -24,8 +24,9 @@ public class IOService {
             fos.write("&&&".getBytes());
             fos.flush();//clear buffer
 
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
+        } catch (IOException e) {
+            System.out.println("IOException "+e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -208,11 +209,12 @@ public class IOService {
         ) {
             int i, currentPos = 1;
             while ((i = fis.read()) != -1) {
-                bos.write(i);
-
                 //skip read bytes of object which must be deleted
                 if (currentPos == start)
-                    fis.skip(length);
+                    fis.skip(length-1);//length-1 because 1 byte цфы already read in operation i = fis.read()
+                else
+                    bos.write(i);
+
 
                 currentPos++;
             }
@@ -231,4 +233,10 @@ public class IOService {
         }
 
     }
+
+    public static void updateTask(Task task) {
+        deleteTaskFromFile(task);
+        writeToFile(task);
+    }
+
 }

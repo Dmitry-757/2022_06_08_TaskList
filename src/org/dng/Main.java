@@ -59,8 +59,16 @@ public class Main {
                 .forEach(System.out::println);
 
         System.out.println("*******************************************************");
-        System.out.println("try to delete task2");
+        System.out.println("try to delete task2 again ))");
         IOService.deleteTaskFromFile(task2);
+        IOService.readFromFile()
+                .forEach(System.out::println);
+
+        System.out.println("*******************************************************");
+        System.out.println("try to update task3");
+        task3.setHeader("updated task 3 header");
+        task3.setDescription("updated task");
+        IOService.updateTask(task3);
         IOService.readFromFile()
                 .forEach(System.out::println);
 
